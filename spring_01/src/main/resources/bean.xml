@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--把对象的创建交给spring来管理-->
+    <!-- spring对bean的管理细节
+    1. 创建bean对象的三种方式
+    2. bean对象的作用范围
+    3. bean对象的生命周期
+      -->
+
+<!--    创建方式一使用默认构造函数创建-->
+<!--    <bean id="accountService" class="com.ni.service.impl.AccountServiceImpl"></bean>-->
+    <bean id="accountDao" class="com.ni.dao.impl.AccountDaoImpl"></bean>
+
+<!--    创建方式二使用普通工厂中的方法创建对象（使用某个类中的方法创建对象，并存入spring容器）-->
+<!--    <bean id="instanceFactory" class="com.ni.factory.InstanceFactory"></bean>-->
+<!--    <bean id="accountService" factory-bean="instanceFactory" factory-method="getAccountService"></bean>-->
+
+<!--    创建方式三使用工厂中的静态方法创建对象（使用某个类中的静态方法创建对象，并存入spring容器中）-->
+<!--    <bean id="accountService" class="com.ni.factory.StaticFactory" factory-method="getAccountService"></bean>-->
+
+<!--    bean的scope属性：
+            singleton:单例（默认值）
+            prototype：多例
+            request：作用于web应用的请求范围
+            session：作用于web应用的会话范围
+            global-session：作用于集群环境的会话范围，当不是集群环境下，它就是session
+-->
+<!--    bean对象的生命周期：
+        单例对象：生命和周期和容器相同
+            出生：容器创建时
+            活着：容器存在时
+            死亡：容器销毁时
+        多例对象
+            出生：对象用id获取时
+            活着：对象只要是在使用过程中就一直活着
+            死亡：java垃圾回收的时候
+-->
+<!--    spring中的依赖注入
+    依赖注入：dependency injection
+    ioc的作用：降低程序间的耦合（依赖关系）
+    依赖关系的管理：交给spring来维护，在当前类需要用到其他类的对象，由spring为我们提供，我们只需要在配置文件中说明
+    能注入的数据：三类
+        基本类型的string
+        其他bean
+        复杂类型/集合类型
+    注入的方式：三种
+        使用构造函数提供
+        使用set方法提供
+        使用注解提供
+
+-->
+
+<!--注入方式一：构造函数注入
+    优势：当获取bean对象时，注入数据是必须的操作，否则对象无法创建成功
+    劣势：改变了bean对象的实例化方式，是我们在创建对象时，即使用不到这些数据，也必须提供
+-->
+
+    <bean id="accountService" class="com.ni.service.impl.AccountServiceImpl">
+        <constructor-arg name="name" value="testing"></constructor-arg>
+        <constructor-arg name="age" value="18"></constructor-arg>
+        <constructor-arg name="birthday" ref="now"></constructor-arg>
+
+    </bean>
+    <bean id="now" class="java.util.Date"></bean>
+
+<!--注入方式二：set方法注入
+    property标签
+    优势：创建对象时灭有明确的限制，可以直接使用默认构造函数
+    劣势：如果某个成员必须有值, 有可能对应的set没写，造成空指针异常
+    在实际开发中，set方法是更常用的方法
+-->
+    <bean id="accountService2" class="com.ni.service.impl.AccountServiceImpl2">
+        <property name="name" value="testing2"></property>
+        <property name="age" value="19"></property>
+        <property name="birthday" ref="now"></property>
+        <property name="accountDao" ref="accountDao"></property>
+    </bean>
+
+<!--    集合类型的注入
+        用于给list结构集合注入的标签：list array set
+        用于给Map结构集合注入的标签：map props
+        结论：结构相同，标签可以互换！
+-->
+    <bean id="accountService3" class="com.ni.service.impl.AccountServiceImpl3">
+        <property name="myStr">
+            <array>
+                <value>aaa</value>
+                <value>bbb</value>
+                <value>ccc</value>
+            </array>
+        </property>
+
+        <property name="myList">
+            <array>
+                <value>aaa</value>
+                <value>bbb</value>
+                <value>ccc</value>
+            </array>
+        </property>
+
+        <property name="mySet">
+            <list>
+                <value>aaa</value>
+                <value>bbb</value>
+                <value>ccc</value>
+            </list>
+        </property>
+
+        <property name="myMap">
+            <map>
+                <entry key="testa" value="aaa"></entry>
+                <entry key="testb">
+                    <value>bbb</value>
+                </entry>
+                <entry key="testc" value="ccc"></entry>
+            </map>
+        </property>
+
+        <property name="myProp">
+            <props>
+                <prop key="testa" >aaa</prop>
+                <prop key="testb" >bbb</prop>
+                <prop key="testc" >ccc</prop>
+            </props>
+        </property>
+
+    </bean>
+
+</beans>
