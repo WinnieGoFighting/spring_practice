@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop
+        https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+<bean id="accountService" class="com.ni.service.impl.AccountServiceImpl"></bean>
+
+<!--    spring 中基于xml的aop配置步骤-
+    1.把通知bean页交给spring来管理
+    2.使用aop:config 标签表明开始aop的配置
+    3.使用aop:aspect标签表明配置切面
+        id属性：给切面提供一个唯一标识
+        ref属性：是指定通知类bean的id
+    4. 在aop:aspect标签的内部使用对应标签配置通知的类型
+        我们现在的实例时前置通知
+        method 属性：用于指定logger类中哪个方法时前置通知
+        pointcut属性：用于指定切入点的表达式，该表达式的含义指的是对业务层中哪些方法增强
+            表达式：（访问修饰符） 返回值 包名.包名.包名...类名.方法名（参数列表）
+                    public void com.ni.service.impl.AccountServiceImpl.saveAccount()
+                    注意点
+                    1.访问修饰符可以省略
+                    2.返回值可以用*表示任意返回值
+                    3.包名可以使用通配符表示任意包，但是有几级包，就需要写几个 * *.*.*.*.AccountServiceImpl.saveAccount()
+                    4.包名可以使用..表示当前包以及其子包 * *..AccountServiceImpl.saveAccount()
+                    5.类名和方法名都可以用*实现通配 * *..*.*()
+                    6.参数列表：基本类型直接写名称 int
+                                引用类型写包名.类名 java.lang.String
+                                （*）任意类型参数，但是必须有参数
+                                (..)有无参数均可
+                     全通配写法：* *..*.*(..)
+                     实际开发中，推荐使用的是类似下列表达式：
+                     切到业务层实现类下的所有方法： * com.ni.service.impl.*.*(..)
+
+-->
+    <bean id="logger" class="com.ni.util.Logger"></bean>
+
+    <aop:config>
+        <aop:pointcut id="pt1" expression="execution(* com.ni.service.impl.*.*(..))"/>
+        <aop:aspect id="logAdvice" ref="logger">
+<!--            <aop:before method="beforePrintLog" pointcut-ref="pt1"></aop:before>-->
+<!--            <aop:after-returning method="afterReturningPrintLog" pointcut-ref="pt1"></aop:after-returning>-->
+<!--            <aop:after-throwing method="afterThrowingPrintLog" pointcut-ref="pt1"></aop:after-throwing>-->
+<!--            <aop:after method="afterPrintLog" pointcut-ref="pt1"></aop:after>-->
+<!--            配置切入点表达式:此标签如果写在aop:aspect之类只能当前切面使用，
+                                 它还可以写在aop:aspect外面，此时变成所有切面可用
+-->
+<!--            <aop:pointcut id="pt1" expression="execution(* com.ni.service.impl.*.*(..))"/>-->
+
+<!--            配置环绕通知-->
+            <aop:around method="aroundPrintLog" pointcut-ref="pt1"></aop:around>
+        </aop:aspect>
+    </aop:config>
+
+
+
+</beans>
