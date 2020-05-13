@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        https://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        https://www.springframework.org/schema/aop/spring-aop.xsd">
+
+<!--    配置账户的业务层-->
+    <bean id="accountService" class="com.ni.service.impl.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"></property>
+    </bean>
+<!--    配置账户的持久层-->
+    <bean id="accountDao" class="com.ni.dao.impl.AccountDaoImpl">
+<!--        <property name="template" ref="jdbcTemplate"></property>-->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+<!--    配置数据源-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql:///spring?useSSL=false"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="12345"></property>
+    </bean>
+
+<!--    配置spring的事务控制
+        1.配置事务管理器
+        2.配置事务的通知：此时需要导入事务的约束和aop约束
+            使用tx:advice配置事务通知
+                属性id:事务通知的唯一标志
+                属性transaction-manager:给事务提供一个事务管理器引用
+        3. 配置aop中的通用切入点表达式
+        4. 建立事务通知和切面点表达式的对应关系
+        5. 配置事务的属性
+            isolation:用于指定事务的隔离级别，默认使用数据库的default value
+            no-rollback-for
+            propagation:用于指定事务的传播行为，默认为是required表示一定有事务，增删改的选择，查询可以选用supports
+            read-only:用于指定事务是否只读。只有查询方法才能设置为true,默认值为false,表示读写
+            timeout:用于指定事务的超时时间，默认为-1，表示永不超时
+            rollback-for:
+            no-rollback-for:
+-->
+    <bean id="transactionManager" class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED" read-only="false" />
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="pt1" expression="execution(* com.ni.service.impl.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pt1"></aop:advisor>
+    </aop:config>
+</beans>
